@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangzai.project.dao.SearchDao">
+
+    <resultMap id="resultSearch" type="com.wangzai.project.entity.Search">
+        <id column="id" property="id"></id>
+        <result column="news_id" property="newsID"></result>
+        <result column="type" property="type"></result>
+    </resultMap>
+
+    <!--通过id查找检索-->
+    <select id="findByID" parameterType="java.lang.Integer" resultMap="resultSearch">
+        select
+            id,news_id,type
+        from
+            search
+        where
+            id=#{id};
+    </select>
+
+    <!--添加检索-->
+    <insert id="addSearch" parameterType="com.wangzai.project.entity.Search" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            search(news_id,type)
+        values
+            (#{search.newsID},#{search.type});
+    </insert>
+
+    <!--通过实体id和类型查询id-->
+    <select id="selectID" parameterType="java.util.HashMap" resultType="java.lang.Object">
+        select
+            id
+        from
+            search
+        where
+            news_id=#{newsID}
+        and
+            type=#{type}
+    </select>
+
+</mapper>

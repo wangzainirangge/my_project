@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangzai.project.dao.NewsDao">
+
+    <resultMap id="resultNews" type="com.wangzai.project.entity.NewsInformation">
+        <id column="news_id" property="newsID"></id>
+        <result column="manager_id" property="managerID"></result>
+        <result column="title" property="title"></result>
+        <result column="photo_url" property="photoUrl"></result>
+        <result column="status" property="status"></result>
+        <result column="new_type" property="type"></result>
+        <result column="html_url" property="htmlUrl"></result>
+        <result column="label" property="label"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="modify_time" property="modifyTime"></result>
+        <result column="push_time" property="pushTime"></result>
+        <result column="abstract" property="articleAbstract"></result>
+    </resultMap>
+
+    <!--根据新闻id值查询一条数据-->
+    <select id="findById" parameterType="java.lang.Integer" resultMap="resultNews">
+        select
+            news_id,manager_id,title,photo_url,status,new_type,html_url,label,create_time,modify_time,push_time,abstract
+        from
+            news_information
+        where
+            news_id=#{newsID}
+        and
+            is_delete = 1
+    </select>
+
+    <!--按照类型查询所有的新闻,传入-1查询所有信息，传入0查询未发布的信息，传入1查询已发布的信息-->
+    <select id="allNews" resultMap="resultNews" parameterType="java.util.HashMap">
+        select
+            news_id,manager_id,title,photo_url,status,new_type,html_url,label,create_time,modify_time,push_time,abstract
+        from
+            news_information
+        <where>
+            <if test="status!=-1">
+                status = #{status}
+            </if>
+            and
+                new_type = #{type}
+            and
+                is_delete = 1
+        </where>
+        order by push_time desc
+    </select>
+
+    <!--添加新闻-->
+    <insert id="addNews" parameterType="com.wangzai.project.entity.NewsInformation" useGeneratedKeys="true" keyProperty="newsID">
+        insert into
+            news_information (manager_id,title,photo_url,new_type,html_url,label,create_time,push_time,abstract)
+        values
+            (#{news.managerID},#{news.title},#{news.photoUrl},#{news.type},#{news.htmlUrl},#{news.label},#{news.createTime},#{news.pushTime},#{news.articleAbstract})
+    </insert>
+
+    <!--更新最近动态-->
+    <update id="updateNews" parameterType="com.wangzai.project.entity.NewsInformation">
+        update
+            news_information
+        set
+            title=#{news.title},photo_url=#{news.photoUrl},html_url=#{news.htmlUrl},label=#{news.label},modify_time=#{news.modifyTime},abstract=#{news.articleAbstract}
+        where
+            news_id=#{news.newsID}
+        and
+            is_delete = 1
+      </update>
+
+    <!--根据新闻id值删除一条数据-->
+    <delete id="deleteNews" parameterType="java.lang.Integer">
+        update
+            news_information
+        set
+            is_delete = 2
+        where
+            news_id=#{newsID}
+    </delete>
+
+
+    <!--根据新闻id值修改最近新闻状态,1 已发布 2 未发布-->
+    <update id="updateNewsStatus" parameterType="java.util.HashMap">
+        update
+            news_information
+        set
+            status=#{status}
+            <if test="state==1">
+                and
+                    push_time = #{pushTime}
+            </if>
+        where
+            news_id=#{newsID}
+        and
+            is_delete = 1
+    </update>
+
+
+    <select id="getCountNews" parameterType="java.util.HashMap" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            news_information
+        <where>
+            <if test="status!=-1">
+                status = #{status}
+            </if>
+            and
+                new_type = #{type}
+            and
+                is_delete = 1
+        </where>
+    </select>
+
+    <select id="selectByProperty" resultMap="resultNews" parameterType="java.util.HashMap">
+        select
+            news_id,manager_id,title,photo_url,status,new_type,html_url,label,create_time,modify_time,push_time,abstract
+        from
+            news_information
+        <where>
+                title like concat('%',#{title},'%')
+            and
+                create_time between #{startTime} and #{endTime}
+            and
+                manager_id in (select manager_id from manager_information where real_name like concat('%',#{author},'%'))
+            and
+                <if test="status!=-1">
+                    status = #{status}
+                </if>
+            and
+                new_type = #{type}
+            and
+                is_delete = 1
+        </where>
+        order by push_time desc
+    </select>
+
+</mapper>

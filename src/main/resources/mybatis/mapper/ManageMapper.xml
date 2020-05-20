@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangzai.project.dao.ManageDao">
+
+    <resultMap id="resultManage" type="com.wangzai.project.entity.Manage">
+        <id column="manager_id" property="manageID"></id>
+        <result column="username" property="username"></result>
+        <result column="password" property="password"></result>
+        <result column="real_name" property="realName"></result>
+        <result column="gender" property="gender"></result>
+        <result column="type" property="type"></result>
+        <result column="identity_level" property="identityLevel"></result>
+        <result column="status" property="status"></result>
+        <result column="email" property="email"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="modify_time" property="modifyTime"></result>
+        <result column="registered_IP" property="registeredIP"></result>
+        <result column="last_login_time" property="lastLoginTime"></result>
+        <result column="last_login_IP" property="lastLoginIP"></result>
+    </resultMap>
+
+    <!--通过id查看用户-->
+    <select id="findByID" parameterType="java.lang.Integer" resultMap="resultManage">
+        select
+            manager_id,username,password,real_name,gender,type,identity_level,status,email,create_time,modify_time,registered_IP,last_login_time,last_login_IP
+        from
+            manager_information
+        where
+            manager_id=#{manageID}
+        and
+            is_delete = 1
+    </select>
+
+    <!--询所有的用户,传入-1查询所有用户，传入1查询所有管理员，传入2查询所有运营者-->
+    <select id="allManage" parameterType="java.lang.Integer" resultMap="resultManage">
+        select
+            manager_id,username,password,real_name,gender,type,identity_level,status,email,create_time,modify_time,registered_IP,last_login_time,last_login_IP
+        from
+            manager_information
+        <where>
+            <if test="identityLevel!=-1">
+                identity_level = #{identityLevel}
+            </if>
+            <if test="status!=-1">
+                and
+                    status = #{status}
+            </if>
+            and
+                is_delete = 1
+        </where>
+        order by create_time desc
+    </select>
+
+    <!--注册用户-->
+    <insert id="addManage" parameterType="com.wangzai.project.entity.Manage">
+        insert into
+            manager_information (username,password,real_name,gender,type,identity_level,email,create_time,modify_time,registered_IP)
+        values
+            (#{manage.username},#{manage.password},#{manage.realName},#{manage.gender},#{manage.type},#{manage.identityLevel},#{manage.email},#{manage.createTime},#{manage.createTime},#{manage.registeredIP})
+    </insert>
+
+    <!--用户登录,返回查询到的数据-->
+    <select id="manageLogin" parameterType="java.util.HashMap" resultMap="resultManage">
+        select
+            manager_id,username,password,real_name,gender,type,identity_level,status,email,create_time,modify_time,registered_IP,last_login_time,last_login_IP
+        from
+            manager_information
+        <where>
+                username=#{username}
+            and
+                password=#{password}
+            and
+                identity_level=#{identityLevel}
+            and
+                status=1
+            and
+                is_delete = 1
+        </where>
+    </select>
+
+    <!--修改用户状态-->
+    <update id="updateManageState" parameterType="java.util.HashMap">
+        update
+            manager_information
+        set
+            status=#{status},modify_time=#{modifyTime}
+        where
+            manager_id=#{manageID}
+        and
+            is_delete = 1
+    </update>
+
+    <!--删除用户-->
+    <update id="deleteManage" parameterType="java.lang.Integer">
+        update
+            manager_information
+        set
+            is_delete = 2
+        where
+            manager_id=#{manageID}
+    </update>
+
+    <!--更新用户-->
+    <update id="updateManage" parameterType="com.wangzai.project.entity.Manage">
+        update
+            manager_information
+        set
+            password=#{manage.password},real_name=#{manage.realName},gender=#{manage.gender},type=#{manage.type},identity_level=#{manage.identityLevel},email=#{manage.email},last_login_time=#{manage.lastLoginTime},last_login_IP=#{manage.lastLoginIP}
+        where
+            manager_id=#{manage.manageID}
+        and
+            is_delete = 1
+    </update>
+
+    <!--根据用户的自定义名和名字进行查找符合的数据-->
+    <select id="selectByProperty" parameterType="java.util.HashMap" resultMap="resultManage">
+        select
+            manager_id,username,password,real_name,gender,type,identity_level,status,email,create_time,modify_time,registered_IP,last_login_time,last_login_IP
+        from
+            manager_information
+        where
+            username like concat('%',#{username},'%')
+        and
+            real_name like concat('%',#{realName},'%')
+        and
+            is_delete = 1
+    </select>
+
+
+</mapper>

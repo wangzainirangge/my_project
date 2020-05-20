@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangzai.project.dao.LikesViewsDao">
+
+    <resultMap id="resultNews" type="com.wangzai.project.entity.LikesViews">
+        <id column="like_views_id" property="likeViewsId"></id>
+        <result column="news_id" property="newsId"></result>
+        <result column="user_id" property="userId"></result>
+        <result column="type" property="type"></result>
+        <result column="user_IP" property="userIP"></result>
+        <result column="operation_time" property="operationTime"></result>
+    </resultMap>
+
+    <!--根据新闻id值查询一条数据-->
+    <select id="findById" parameterType="java.lang.Integer" resultMap="resultNews">
+        select
+            like_views_id,news_id,user_id,type,user_IP,operation_time
+        from
+            likes_views
+        where
+            like_views_id=#{likeViewsId}
+        and
+            is_delete = 1
+    </select>
+
+    <!--添加新闻-->
+    <insert id="addLikesViews" parameterType="com.wangzai.project.entity.LikesViews" useGeneratedKeys="true" keyProperty="likeViewsId">
+        insert into
+            likes_views (news_id,user_id,type,user_IP,operation_time)
+        values
+            (#{likesViews.newsId},#{likesViews.userId},#{likesViews.type},#{likesViews.userIP},#{likesViews.operationTime})
+    </insert>
+
+    <select id="getStartNum" parameterType="java.util.HashMap" resultType="java.lang.Integer">
+        select
+            count( like_views_id )
+        from
+            likes_views
+        where
+            user_id=#{userId}
+        and
+            news_id=#{newsID}
+        and
+            type = 2
+        and
+            is_delete = 1
+    </select>
+
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangzai.project.dao.NewsCommentsDao">
+
+    <resultMap id="resultNews" type="com.wangzai.project.entity.NewsComments">
+        <id column="comments_id" property="commentsID"></id>
+        <result column="news_id" property="newsID"></result>
+        <result column="user_id" property="useID"></result>
+        <result column="content" property="content"></result>
+        <result column="create_IP" property="createIP"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="status" property="status"></result>
+    </resultMap>
+
+    <select id="findById" parameterType="java.lang.Integer" resultMap="resultNews">
+        select
+            comments_id,news_id,user_id,content,create_IP,create_time,status
+        from
+            news_comments
+        where
+            comments_id=#{commentsID}
+        and
+            is_delete = 1
+    </select>
+
+    <select id="allNewsComments" resultMap="resultNews" parameterType="java.lang.Integer">
+        select
+            comments_id,news_id,user_id,content,create_IP,create_time,status
+        from
+            news_comments
+        <where>
+            <if test="status!=-1">
+                status = #{status}
+            </if>
+            and
+                is_delete = 1
+        </where>
+        order by create_time desc
+    </select>
+
+    <insert id="addNewsComments" parameterType="com.wangzai.project.entity.NewsComments" useGeneratedKeys="true" keyProperty="commentsID">
+        insert into
+            news_comments (news_id,user_id,content,create_IP,create_time)
+        values
+            (#{newsComments.newsID},#{newsComments.useID},#{newsComments.content},#{newsComments.createIP},#{newsComments.createTime})
+    </insert>
+
+
+    <delete id="deleteNewsComments" parameterType="java.lang.Integer">
+        update
+            news_comments
+        set
+            is_delete = 2
+        where
+            comments_id=#{commentsID}
+    </delete>
+
+
+
+</mapper>

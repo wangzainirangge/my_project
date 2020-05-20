@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wangzai.project.dao.LoginInformationDao">
+
+    <resultMap id="resultNews" type="com.wangzai.project.entity.LoginInformation">
+        <id column="login_id" property="loginID"></id>
+        <result column="person_id" property="personID"></result>
+        <result column="login_IP" property="loginIP"></result>
+        <result column="login_time" property="loginTime"></result>
+        <result column="type" property="type"></result>
+    </resultMap>
+
+    <!--根据新闻id值查询一条数据-->
+    <select id="findById" parameterType="java.lang.Integer" resultMap="resultNews">
+        select
+            login_id,person_id,login_IP,login_time,type
+        from
+            login_information
+        where
+            login_id=#{loginID}
+        and
+            is_delete = 1
+    </select>
+
+    <!--添加新闻-->
+    <insert id="addLoginInformation" parameterType="com.wangzai.project.entity.LoginInformation" useGeneratedKeys="true" keyProperty="loginID">
+        insert into
+            login_information (person_id,login_IP,login_time,type)
+        values
+            (#{loginInformation.personID},#{loginInformation.loginIP},#{loginInformation.loginTime},#{loginInformation.type})
+    </insert>
+
+
+</mapper>
